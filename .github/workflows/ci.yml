@@ -83,7 +83,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '14'
+        node-version: '16'
         cache: 'npm'
         cache-dependency-path: ui/src/main/angular4src/package-lock.json
     
