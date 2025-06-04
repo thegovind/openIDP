@@ -1,0 +1,99 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      matrix:
+        language: [ 'java', 'javascript' ]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+    
+    - name: Set up JDK 8
+      if: matrix.language == 'java'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build Java projects
+      if: matrix.language == 'java'
+      run: |
+        mvn clean compile -Dmaven.test.skip=true
+        cd service/Services && mvn clean compile -Dmaven.test.skip=true
+        cd ../Cloud-Config && mvn clean compile -Dmaven.test.skip=true
+        cd ../eureka-service && mvn clean compile -Dmaven.test.skip=true
+        cd ../../dashboard && mvn clean compile -Dmaven.test.skip=true
+        cd ../subscription && mvn clean compile -Dmaven.test.skip=true
+        cd ../scheduler/SchedulerService && mvn clean compile -Dmaven.test.skip=true
+        cd ../../connectors/jenkins && mvn clean compile -Dmaven.test.skip=true
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    needs: [dependency-scan]
+    if: github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build test image for scanning
+      run: |
+        docker build -t test-scan:latest -f service/Services/restapi/Dockerfile .
+    
+    - name: Run Trivy vulnerability scanner on container
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'test-scan:latest'
+        format: 'sarif'
+        output: 'trivy-container-results.sarif'
+    
+    - name: Upload Trivy container scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-container-results.sarif'

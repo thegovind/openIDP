@@ -1,0 +1,95 @@
+name: Release and Artifact Management
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        default: '1.7.0'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Set version
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+        else
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        fi
+    
+    - name: Build all services
+      run: |
+        mvn clean install -Dmaven.test.skip=true
+        cd service/Services && mvn clean install -Dmaven.test.skip=true
+        cd ../Cloud-Config && mvn clean install -Dmaven.test.skip=true
+        cd ../eureka-service && mvn clean install -Dmaven.test.skip=true
+        cd ../../dashboard && mvn clean install -Dmaven.test.skip=true
+        cd ../ui && mvn clean install -Dmaven.test.skip=true
+        cd ../scheduler/SchedulerService && mvn clean install -Dmaven.test.skip=true
+        cd ../../connectors/jenkins && mvn clean install -Dmaven.test.skip=true
+        cd ../../../subscription && mvn clean install -Dmaven.test.skip=true
+        cd ../jenkins/custom_tools/DevopsJsonConv && mvn clean install -Dmaven.test.skip=true
+        cd ../MetricsProcessor && mvn clean install -Dmaven.test.skip=true
+        cd ../ReportFetchUtil && mvn clean install -Dmaven.test.skip=true
+        cd ../SchedulerUtility && mvn clean install -Dmaven.test.skip=true
+    
+    - name: Build DSL
+      run: |
+        cd dsl
+        gradle build
+    
+    - name: Create release artifacts
+      run: |
+        mkdir -p release-artifacts
+        find . -name "*.jar" -path "*/target/*" -exec cp {} release-artifacts/ \;
+        cp dsl/target/DSL.zip release-artifacts/ || echo "DSL.zip not found"
+    
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: openidp-release-${{ env.VERSION }}
+        path: release-artifacts/
+        retention-days: 90
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build and push release images
+      run: |
+        services=("services:service/Services/restapi" "oauth:service/Services/authservice" "cloud-config:service/Cloud-Config" "eureka:service/eureka-service" "dashboard:dashboard" "subscription:subscription" "scheduler:scheduler/SchedulerService" "jenkins-connector:connectors/jenkins" "orchestrator:orchestrator/orchestrator_java" "ui:ui" "jenkins:jenkins")
+        
+        for service_info in "${services[@]}"; do
+          IFS=':' read -r service_name service_path <<< "$service_info"
+          echo "Building and pushing $service_name..."
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service_name:${{ env.VERSION }} -f $service_path/Dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service_name:${{ env.VERSION }}
+        done
