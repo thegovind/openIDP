@@ -10,7 +10,7 @@ data:
     protocol = http
     http_port = 3000
     domain = {{ .Values.config.hostname }}
-    root_url = {{ if .Values.ssl.enabled }}https{{ else }}http{{ end }}://{{ .Values.config.hostname }}{{ if ne .Values.config.customPort 80 }}{{ if ne .Values.config.customPort 443 }}:{{ .Values.config.customPort }}{{ end }}{{ end }}/grafana/
+    root_url = {{ if .Values.ssl.enabled }}https{{ else }}http{{ end }}://{{ .Values.config.hostname }}{{ if and (ne (.Values.config.customPort | toString) "80") (ne (.Values.config.customPort | toString) "443") }}:{{ .Values.config.customPort }}{{ end }}/grafana/
     serve_from_sub_path = true
     
     [database]

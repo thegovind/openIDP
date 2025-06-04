@@ -52,8 +52,8 @@ data:
   CON_JENKINS_HOSTNAME: "jenkinsconnector"
   CON_JENKINS_PORT: "8282"
   
-  {{- if ne .Values.config.customPort 80 }}
-  {{- if ne .Values.config.customPort 443 }}
+  {{- if ne (.Values.config.customPort | toString) "80" }}
+  {{- if ne (.Values.config.customPort | toString) "443" }}
   GRAFANA_PORT: ":{{ .Values.config.customPort }}"
   DASHBOARD_PORT: ":{{ .Values.config.customPort }}"
   IDPAPP_PORT: ":{{ .Values.config.customPort }}"
