@@ -115,6 +115,96 @@ Below instructions will help the users to get to know the structure of this repo
 </table>
 
 
+## Deployment
+
+The platform supports deployment using both Docker Swarm and Kubernetes for container orchestration.
+
+### Kubernetes Deployment (Recommended)
+
+#### Prerequisites
+- Kubernetes cluster (v1.19+)
+- Helm 3.x
+- kubectl configured to access your cluster
+- Persistent storage provisioner
+
+#### Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/thegovind/openIDP.git
+   cd openIDP
+   ```
+
+2. **Deploy using Kubernetes**
+   ```bash
+   # Using build script
+   ./build.sh --kubernetes --namespace openidp
+
+   # Or using Helm directly
+   helm install openidp k8s/openidp --namespace openidp --create-namespace
+   ```
+
+3. **Access the platform**
+   - Web UI: http://openidp.local/idpapp/
+   - Jenkins: http://openidp.local/jenkins/
+   - Grafana: http://openidp.local/grafana/
+
+#### Kubernetes Deployment Options
+
+```bash
+# Development deployment
+./build.sh --kubernetes --namespace openidp-dev
+
+# SSL-enabled deployment
+./build.sh --kubernetes --ssl-enabled --hostname your-domain.com
+
+# Production deployment with custom values
+helm install openidp k8s/openidp -f k8s/openidp/values-prod.yaml --namespace openidp
+```
+
+### Docker Swarm Deployment (Legacy)
+
+#### Prerequisites
+- Docker Engine 19.03+
+- Docker Compose 1.25+
+- Docker Swarm mode enabled
+
+#### Quick Start
+
+1. **Build and deploy**
+   ```bash
+   ./build.sh
+   ```
+
+2. **Access the platform**
+   - Web UI: http://localhost/idpapp/
+   - Jenkins: http://localhost/jenkins/
+   - Grafana: http://localhost/grafana/
+
+### Health Monitoring
+
+Use the included health check script to verify all services:
+
+```bash
+# For Docker Swarm
+./health_check.sh
+
+# For Kubernetes
+./health_check.sh --kubernetes --namespace openidp
+```
+
+### Migration from Docker Swarm to Kubernetes
+
+To migrate an existing Docker Swarm deployment to Kubernetes:
+
+1. **Export data** from existing deployment
+2. **Deploy Kubernetes** version with same configuration
+3. **Import data** to new deployment
+4. **Update DNS/load balancer** to point to Kubernetes ingress
+5. **Verify functionality** and decommission old deployment
+
+See [k8s/README.md](k8s/README.md) for detailed Kubernetes deployment documentation.
+
 Please read [WIKI](https://github.com/Infosys/openIDP/wiki) for detailed documentation.
 
 

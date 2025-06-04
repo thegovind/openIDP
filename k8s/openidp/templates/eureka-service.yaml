@@ -1,0 +1,19 @@
+{{- if .Values.eureka.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: eureka
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8761
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "openidp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: eureka
+{{- end }}

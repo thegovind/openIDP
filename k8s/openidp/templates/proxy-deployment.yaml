@@ -1,0 +1,107 @@
+{{- if .Values.proxy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openidp.fullname" . }}-proxy
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: proxy
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openidp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: proxy
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openidp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: proxy
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openidp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: proxy
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.proxy.image.repository }}:{{ .Values.proxy.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.config.customPort }}
+              protocol: TCP
+          env:
+            {{- include "openidp.commonEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: proxy-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: idp.conf
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            {{- if .Values.ssl.enabled }}
+            - name: ssl-config
+              mountPath: /protocol_config/protocol.conf
+              subPath: ssl.conf
+            - name: certs
+              mountPath: /certs
+            {{- else }}
+            - name: nonssl-config
+              mountPath: /protocol_config/protocol.conf
+              subPath: nonssl.conf
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: proxy-config
+          configMap:
+            name: {{ include "openidp.fullname" . }}-proxy-config
+        - name: nginx-config
+          configMap:
+            name: {{ include "openidp.fullname" . }}-nginx-config
+        {{- if .Values.ssl.enabled }}
+        - name: ssl-config
+          configMap:
+            name: {{ include "openidp.fullname" . }}-ssl-config
+        - name: certs
+          secret:
+            secretName: {{ include "openidp.fullname" . }}-certs
+        {{- else }}
+        - name: nonssl-config
+          configMap:
+            name: {{ include "openidp.fullname" . }}-nonssl-config
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

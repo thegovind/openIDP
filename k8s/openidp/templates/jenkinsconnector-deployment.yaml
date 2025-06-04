@@ -1,0 +1,110 @@
+{{- if .Values.jenkinsconnector.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openidp.fullname" . }}-jenkinsconnector
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jenkinsconnector
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openidp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: jenkinsconnector
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openidp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: jenkinsconnector
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openidp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: jenkinsconnector
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}/idpjenkinsconnector:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8282
+              protocol: TCP
+          env:
+            {{- include "openidp.commonEnv" . | nindent 12 }}
+            - name: JENKINS_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JENKINS_HOSTNAME
+            - name: JENKINS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JENKINS_PORT
+            - name: JENKINS_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JENKINS_USERNAME
+            - name: JENKINS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openidp.fullname" . }}-secret
+                  key: JENKINS_PASSWORD
+            {{- if .Values.ssl.enabled }}
+            - name: SSL_CA_LOC
+              value: "/certs/cacerts"
+            {{- end }}
+          volumeMounts:
+            - name: dsl-data
+              mountPath: /DSL
+            {{- if .Values.ssl.enabled }}
+            - name: certs
+              mountPath: /certs
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /idpjenkins/actuator/health
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /idpjenkins/actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: dsl-data
+          persistentVolumeClaim:
+            claimName: {{ include "openidp.fullname" . }}-dsl-pvc
+        {{- if .Values.ssl.enabled }}
+        - name: certs
+          secret:
+            secretName: {{ include "openidp.fullname" . }}-certs
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

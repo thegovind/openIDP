@@ -1,0 +1,96 @@
+{{- if .Values.orchestrator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openidp.fullname" . }}-orchestrator
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openidp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: orchestrator
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openidp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: orchestrator
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openidp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: orchestrator
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}/{{ if .Values.config.experimentalFeatures }}idporchestrator{{ else }}idporchestratorjava{{ end }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8281
+              protocol: TCP
+          env:
+            {{- include "openidp.commonEnv" . | nindent 12 }}
+            {{- include "openidp.kafkaEnv" . | nindent 12 }}
+            - name: TRACER_FLAG
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: TRACER_FLAG
+            - name: JAEGER_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JAEGER_HOSTNAME
+            {{- if .Values.ssl.enabled }}
+            - name: SSL_CA_LOC
+              value: "/certs/cacerts"
+            {{- end }}
+          {{- if .Values.ssl.enabled }}
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.ssl.enabled }}
+      volumes:
+        - name: certs
+          secret:
+            secretName: {{ include "openidp.fullname" . }}-certs
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

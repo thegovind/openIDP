@@ -1,0 +1,132 @@
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "fast-ssd"
+
+replicaCount: 2
+
+image:
+  registry: docker.io
+  repository: idp
+  pullPolicy: IfNotPresent
+  tag: "1.7.0-RELEASE"
+
+ssl:
+  enabled: true
+  customPort: 443
+
+config:
+  hostname: openidp.company.com
+  customPort: 443
+  profile: paas
+  timezone: "Asia/Kolkata"
+  adminUsername: idpadmin
+  adminPassword: "SecurePassword123!"
+  configUsername: idpadmin
+  configPassword: "SecurePassword123!"
+  hideJsonConvert: true
+  cloudDeployFlag: true
+  experimentalFeatures: false
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "SecureDBPassword123!"
+    username: postgres
+    password: "SecureDBPassword123!"
+    database: keycloak
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+
+zookeeper:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    enabled: true
+    size: 10Gi
+
+kafka:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    enabled: true
+    size: 20Gi
+
+keycloak:
+  enabled: true
+  auth:
+    adminUser: admin
+    adminPassword: "SecureKeycloakPassword123!"
+
+grafana:
+  enabled: true
+  adminPassword: "SecureGrafanaPassword123!"
+  persistence:
+    enabled: true
+    size: 5Gi
+
+jenkins:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 50Gi
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+persistence:
+  enabled: true
+  storageClass: "fast-ssd"
+  accessMode: ReadWriteOnce
+  size: 20Gi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: openidp.company.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: openidp-tls
+      hosts:
+        - openidp.company.com
+
+nodeSelector:
+  node-type: "compute-optimized"
+
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "openidp"
+    effect: "NoSchedule"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - openidp
+          topologyKey: kubernetes.io/hostname

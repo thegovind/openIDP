@@ -1,0 +1,99 @@
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: idp
+  pullPolicy: IfNotPresent
+  tag: "1.7.0-RELEASE"
+
+ssl:
+  enabled: false
+  customPort: 80
+
+config:
+  hostname: openidp-dev.local
+  customPort: 80
+  profile: paas
+  timezone: "Asia/Kolkata"
+  adminUsername: idpadmin
+  adminPassword: idpadmin@123
+  configUsername: idpadmin
+  configPassword: idpadmin@123
+  hideJsonConvert: true
+  cloudDeployFlag: true
+  experimentalFeatures: false
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: root
+    username: postgres
+    password: root
+    database: keycloak
+  primary:
+    persistence:
+      enabled: true
+      size: 4Gi
+
+zookeeper:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 2Gi
+
+kafka:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 4Gi
+
+keycloak:
+  enabled: true
+  auth:
+    adminUser: admin
+    adminPassword: admin
+
+grafana:
+  enabled: true
+  adminPassword: idp@123
+  persistence:
+    enabled: true
+    size: 1Gi
+
+jenkins:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 4Gi
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 4Gi
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: openidp-dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []

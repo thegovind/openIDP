@@ -1,0 +1,22 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openidp.fullname" . }}-postgresql-init
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+data:
+  01-init-databases.sql: |
+    CREATE DATABASE keycloak;
+    CREATE DATABASE idp;
+    CREATE DATABASE i2p;
+    CREATE DATABASE grafana;
+    
+    CREATE SCHEMA IF NOT EXISTS idpoauth;
+    CREATE SCHEMA IF NOT EXISTS public;
+    
+    GRANT ALL PRIVILEGES ON DATABASE keycloak TO postgres;
+    GRANT ALL PRIVILEGES ON DATABASE idp TO postgres;
+    GRANT ALL PRIVILEGES ON DATABASE i2p TO postgres;
+    GRANT ALL PRIVILEGES ON DATABASE grafana TO postgres;
+{{- end }}

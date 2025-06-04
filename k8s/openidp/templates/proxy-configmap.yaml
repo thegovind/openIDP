@@ -1,0 +1,216 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openidp.fullname" . }}-proxy-config
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+data:
+  idp.conf: |
+    upstream config {
+        server config:8888;
+    }
+    upstream eureka {
+        server eureka:8761;
+    }
+    upstream oauth {
+        server oauth:9999;
+    }
+    upstream services {
+        server services:8080;
+    }
+    upstream dashboard {
+        server dashboard:8084;
+    }
+    upstream ui {
+        server ui:8086;
+    }
+    upstream subscription {
+        server subscription:8085;
+    }
+    upstream scheduler {
+        server scheduler:8087;
+    }
+    upstream keycloak {
+        server keycloak:8080;
+    }
+    upstream jenkins {
+        server jenkins:8080;
+    }
+    upstream grafana {
+        server grafana:3000;
+    }
+    upstream jenkinsconnector {
+        server jenkinsconnector:8282;
+    }
+    
+    server {
+        listen {{ .Values.config.customPort }};
+        server_name {{ .Values.config.hostname }};
+        
+        location /config/ {
+            proxy_pass http://config/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /eureka/ {
+            proxy_pass http://eureka/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /idp-oauth/ {
+            proxy_pass http://oauth/idp-oauth/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /idprest/ {
+            proxy_pass http://services/idprest/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /idpdashboard/ {
+            proxy_pass http://dashboard/idpdashboard/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /idpapp/ {
+            proxy_pass http://ui/idpapp/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /subscription/ {
+            proxy_pass http://subscription/subscription/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /idpschedule/ {
+            proxy_pass http://scheduler/idpschedule/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /auth/ {
+            proxy_pass http://keycloak/auth/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /jenkins/ {
+            proxy_pass http://jenkins/jenkins/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /grafana/ {
+            proxy_pass http://grafana/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /idpjenkins/ {
+            proxy_pass http://jenkinsconnector/idpjenkins/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location / {
+            proxy_pass http://ui/idpapp/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openidp.fullname" . }}-nginx-config
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    error_log /var/log/nginx/error.log;
+    pid /run/nginx.pid;
+    
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+        
+        access_log /var/log/nginx/access.log main;
+        
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        
+        include /etc/nginx/conf.d/*.conf;
+    }
+{{- if .Values.ssl.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openidp.fullname" . }}-ssl-config
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+data:
+  ssl.conf: |
+    ssl_certificate /certs/server.crt;
+    ssl_certificate_key /certs/server.key;
+    ssl_session_cache shared:SSL:1m;
+    ssl_session_timeout 10m;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+{{- else }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openidp.fullname" . }}-nonssl-config
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+data:
+  nonssl.conf: |
+{{- end }}

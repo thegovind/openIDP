@@ -1,0 +1,218 @@
+{{- if .Values.services.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openidp.fullname" . }}-services
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: services
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openidp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: services
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openidp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: services
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openidp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: services
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}/idpservices:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            {{- include "openidp.commonEnv" . | nindent 12 }}
+            {{- include "openidp.dbEnv" . | nindent 12 }}
+            {{- include "openidp.kafkaEnv" . | nindent 12 }}
+            {{- include "openidp.serviceEnv" . | nindent 12 }}
+            - name: ORCHESTRATOR_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: ORCHESTRATOR_HOSTNAME
+            - name: ORCHESTRATOR_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: ORCHESTRATOR_PORT
+            - name: GRAFANA_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: GRAFANA_HOSTNAME
+            - name: GRAFANA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: GRAFANA_PORT
+            - name: ZOOKEEPER_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: ZOOKEEPER_HOSTNAME
+            - name: ZOOKEEPER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: ZOOKEEPER_PORT
+            - name: SCHEDULER_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SCHEDULER_HOSTNAME
+            - name: SCHEDULER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SCHEDULER_PORT
+            - name: KEYCLOAK_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: KEYCLOAK_HOSTNAME
+            - name: KEYCLOAK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: KEYCLOAK_PORT
+            - name: KEYCLOAK_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: KEYCLOAK_USER
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openidp.fullname" . }}-secret
+                  key: KEYCLOAK_PASSWORD
+            - name: JENKINS_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JENKINS_HOSTNAME
+            - name: JENKINS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JENKINS_PORT
+            - name: JENKINS_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: JENKINS_USERNAME
+            - name: JENKINS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openidp.fullname" . }}-secret
+                  key: JENKINS_PASSWORD
+            - name: OAUTH_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: OAUTH_HOSTNAME
+            - name: OAUTH_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: OAUTH_PORT
+            - name: DASHBOARD_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: DASHBOARD_HOSTNAME
+            - name: DASHBOARD_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: DASHBOARD_PORT
+            - name: IDPAPP_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: IDPAPP_HOSTNAME
+            - name: IDPAPP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: IDPAPP_PORT
+            - name: SUBSCRIPTION_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SUBSCRIPTION_HOSTNAME
+            - name: SUBSCRIPTION_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SUBSCRIPTION_PORT
+            - name: SERVICES_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SERVICES_HOSTNAME
+            - name: SERVICES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SERVICES_PORT
+            {{- if .Values.ssl.enabled }}
+            - name: SSL_CA_LOC
+              value: "/certs/cacerts"
+            {{- end }}
+          {{- if .Values.ssl.enabled }}
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /idprest/swagger-ui.html
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /idprest/swagger-ui.html
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.ssl.enabled }}
+      volumes:
+        - name: certs
+          secret:
+            secretName: {{ include "openidp.fullname" . }}-certs
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

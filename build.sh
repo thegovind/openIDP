@@ -27,6 +27,9 @@ SKIP_DATAFILES_UPDATE=${SKIP_DATAFILES_UPDATE:-false}
 LOCAL_M2_CACHE=${LOCAL_M2_CACHE:-"-v /root/.m2/:/root/.m2/"}
 AUTOMATED_DEPLOYMENT=${AUTOMATED_DEPLOYMENT:-false}
 STACK_RELEASE_TIMEOUT=${STACK_RELEASE_TIMEOUT:-50}
+KUBERNETES_DEPLOY=${KUBERNETES_DEPLOY:-false}
+KUBERNETES_NAMESPACE=${KUBERNETES_NAMESPACE:-default}
+HELM_CHART_PATH=${HELM_CHART_PATH:-k8s/openidp}
 export HOSTNAME=${HOSTNAME:-$(hostname)}
 
 
@@ -223,6 +226,9 @@ export ADMIN_PASSWORD=${ADMIN_PASSWORD:-idpadmin@123}
 
 #Custom Port Set
 export SSL_ENABLED=${SSL_ENABLED:-false}
+export KUBERNETES_DEPLOY=${KUBERNETES_DEPLOY:-false}
+export KUBERNETES_NAMESPACE=${KUBERNETES_NAMESPACE:-default}
+export HELM_CHART_PATH=${HELM_CHART_PATH:-k8s/openidp}
 if [ "$SSL_ENABLED" = true ]
 then
 	export CUSTOM_PORT=${CUSTOM_PORT:-443}
@@ -673,13 +679,42 @@ then
 	echo "Deploying IDP Stack"
 	env | grep '' > run.env
 	docker run --rm $INTERACTIVE -v $PWD:$PWD --env-file run.env -w=$PWD --entrypoint "" $COMPOSE_IMAGE /bin/sh -c "/usr/local/bin/docker-compose $COMPOSE_FILE config > stack.yml"
-	docker stack deploy -c stack.yml IDP --with-registry-auth
+	if [ "$KUBERNETES_DEPLOY" = true ]; then
+		echo "Deploying to Kubernetes using Helm"
+		kubectl create namespace "$KUBERNETES_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+		
+		helm repo add bitnami https://charts.bitnami.com/bitnami
+		helm repo update
+		
+		values_file="values.yaml"
+		if [ "$SSL_ENABLED" = true ]; then
+			values_file="values-ssl.yaml"
+		fi
+		
+		helm upgrade --install openidp "$HELM_CHART_PATH" \
+			--namespace "$KUBERNETES_NAMESPACE" \
+			--values "$HELM_CHART_PATH/$values_file" \
+			--set config.hostname="$HOSTNAME" \
+			--set config.customPort="$CUSTOM_PORT" \
+			--set ssl.enabled="$SSL_ENABLED" \
+			--wait --timeout=600s
+		
+		echo "Kubernetes deployment completed"
+	else
+		docker stack deploy -c stack.yml IDP --with-registry-auth
+	fi
 fi
 
 #Health Checks
 if [ "$SKIP_HEALTH_CHECK" != true ]
 then
-	docker run --rm $INTERACTIVE --network="host" -v $PWD:/health -e PROTOCOL=$PROTOCOL -e PORT=:$CUSTOM_PORT -e CONFIG_HOSTNAME=$HOSTNAME -e CONFIG_USERNAME=$CONFIG_USERNAME -e CONFIG_PASSWORD=$CONFIG_PASSWORD -e EUREKA_HOSTNAME=$EUREKA_HOSTNAME -e KEYCLOAK_HOSTNAME=$KEYCLOAK_HOSTNAME -e JENKINS_HOSTNAME=$JENKINS_HOSTNAME -e OAUTH_HOSTNAME=$OAUTH_HOSTNAME -e DASHBOARD_HOSTNAME=$DASHBOARD_HOSTNAME -e IDPAPP_HOSTNAME=$IDPAPP_HOSTNAME -e SUBSCRIPTION_HOSTNAME=$SUBSCRIPTION_HOSTNAME -e SERVICES_HOSTNAME=$SERVICES_HOSTNAME -e CDSERVICE_HOSTNAME=$CDSERVICE_HOSTNAME -e GRAFANA_HOSTNAME=$GRAFANA_HOSTNAME -w=/health --entrypoint "sh" $WGET_IMAGE health_check.sh
+	if [ "$KUBERNETES_DEPLOY" = true ]; then
+		echo "Running Kubernetes health checks"
+		export KUBERNETES_DEPLOY=true
+		sh health_check.sh
+	else
+		docker run --rm $INTERACTIVE --network="host" -v $PWD:/health -e PROTOCOL=$PROTOCOL -e PORT=:$CUSTOM_PORT -e CONFIG_HOSTNAME=$HOSTNAME -e CONFIG_USERNAME=$CONFIG_USERNAME -e CONFIG_PASSWORD=$CONFIG_PASSWORD -e EUREKA_HOSTNAME=$EUREKA_HOSTNAME -e KEYCLOAK_HOSTNAME=$KEYCLOAK_HOSTNAME -e JENKINS_HOSTNAME=$JENKINS_HOSTNAME -e OAUTH_HOSTNAME=$OAUTH_HOSTNAME -e DASHBOARD_HOSTNAME=$DASHBOARD_HOSTNAME -e IDPAPP_HOSTNAME=$IDPAPP_HOSTNAME -e SUBSCRIPTION_HOSTNAME=$SUBSCRIPTION_HOSTNAME -e SERVICES_HOSTNAME=$SERVICES_HOSTNAME -e CDSERVICE_HOSTNAME=$CDSERVICE_HOSTNAME -e GRAFANA_HOSTNAME=$GRAFANA_HOSTNAME -w=/health --entrypoint "sh" $WGET_IMAGE health_check.sh
+	fi
 fi
 
 

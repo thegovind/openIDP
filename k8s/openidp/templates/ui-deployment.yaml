@@ -1,0 +1,126 @@
+{{- if .Values.ui.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openidp.fullname" . }}-ui
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openidp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ui
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openidp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: ui
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openidp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: ui
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}/idpui:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8086
+              protocol: TCP
+          env:
+            {{- include "openidp.commonEnv" . | nindent 12 }}
+            {{- include "openidp.serviceEnv" . | nindent 12 }}
+            - name: OAUTH_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: OAUTH_HOSTNAME
+            - name: OAUTH_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: OAUTH_PORT
+            - name: SERVICES_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SERVICES_HOSTNAME
+            - name: SERVICES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SERVICES_PORT
+            - name: SUBSCRIPTION_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SUBSCRIPTION_HOSTNAME
+            - name: SUBSCRIPTION_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: SUBSCRIPTION_PORT
+            - name: DASHBOARD_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: DASHBOARD_HOSTNAME
+            - name: DASHBOARD_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: DASHBOARD_PORT
+            {{- if .Values.ssl.enabled }}
+            - name: SSL_CA_LOC
+              value: "/certs/cacerts"
+            {{- end }}
+          {{- if .Values.ssl.enabled }}
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /idpapp/
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /idpapp/
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.ssl.enabled }}
+      volumes:
+        - name: certs
+          secret:
+            secretName: {{ include "openidp.fullname" . }}-certs
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

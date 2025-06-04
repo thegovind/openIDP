@@ -1,0 +1,117 @@
+{{- if .Values.keycloak.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openidp.fullname" . }}-keycloak
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keycloak
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openidp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: keycloak
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openidp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: keycloak
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openidp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: keycloak
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "jboss/keycloak:8.0.1"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            {{- include "openidp.commonEnv" . | nindent 12 }}
+            {{- include "openidp.dbEnv" . | nindent 12 }}
+            - name: KEYCLOAK_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: KEYCLOAK_USER
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openidp.fullname" . }}-secret
+                  key: KEYCLOAK_PASSWORD
+            - name: DB_VENDOR
+              value: "postgres"
+            - name: DB_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: POSTGRES_HOSTNAME
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: POSTGRES_PORT
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: POSTGRES_DEFAULT
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "openidp.fullname" . }}-config
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openidp.fullname" . }}-secret
+                  key: POSTGRES_PASSWORD
+            - name: PROXY_ADDRESS_FORWARDING
+              value: "true"
+          volumeMounts:
+            - name: keycloak-theme
+              mountPath: /opt/jboss/keycloak/themes/idptheme
+          livenessProbe:
+            httpGet:
+              path: /auth
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /auth
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: keycloak-theme
+          configMap:
+            name: {{ include "openidp.fullname" . }}-keycloak-theme
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

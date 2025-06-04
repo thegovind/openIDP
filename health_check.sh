@@ -1,5 +1,8 @@
 #!/bin/sh
 echo "Performing Health Checks .........."
+
+KUBERNETES_DEPLOY=${KUBERNETES_DEPLOY:-false}
+KUBERNETES_NAMESPACE=${KUBERNETES_NAMESPACE:-default}
 status=false;
 retries_allowed=100
 print_status(){
@@ -247,5 +250,16 @@ while [ "$status" != true ]
 		exit 1
 	fi
 done
+
+if [ "$KUBERNETES_DEPLOY" = true ]; then
+	echo "Checking Kubernetes pod status..."
+	kubectl get pods -n "$KUBERNETES_NAMESPACE" -l app.kubernetes.io/name=openidp
+	
+	failed_pods=$(kubectl get pods -n "$KUBERNETES_NAMESPACE" -l app.kubernetes.io/name=openidp --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l)
+	if [ "$failed_pods" -gt 0 ]; then
+		echo "Warning: $failed_pods pods are not in Running state"
+		kubectl get pods -n "$KUBERNETES_NAMESPACE" -l app.kubernetes.io/name=openidp
+	fi
+fi
 
 echo "All Health Checks Passed. IDP should be accessible at ${PROTOCOL}://${IDPAPP_HOSTNAME}${PORT}"

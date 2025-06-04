@@ -1,0 +1,36 @@
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+ssl:
+  enabled: true
+  customPort: 443
+
+config:
+  hostname: openidp-ssl.local
+  customPort: 443
+  profile: paas
+  timezone: "Asia/Kolkata"
+  adminUsername: idpadmin
+  adminPassword: idpadmin@123
+  configUsername: idpadmin
+  configPassword: idpadmin@123
+  hideJsonConvert: true
+  cloudDeployFlag: true
+  experimentalFeatures: false
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: openidp-ssl.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: openidp-ssl-tls
+      hosts:
+        - openidp-ssl.local

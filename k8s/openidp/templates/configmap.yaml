@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openidp.fullname" . }}-config
+  labels:
+    {{- include "openidp.labels" . | nindent 4 }}
+data:
+  TZ: {{ .Values.config.timezone | quote }}
+  PROFILE: {{ .Values.config.profile | quote }}
+  HOSTNAME: {{ .Values.config.hostname | quote }}
+  CUSTOM_PORT: {{ .Values.config.customPort | quote }}
+  SSL_ENABLED: {{ .Values.ssl.enabled | quote }}
+  PROTOCOL: {{ if .Values.ssl.enabled }}"https"{{ else }}"http"{{ end }}
+  ADMIN_USERNAME: {{ .Values.config.adminUsername | quote }}
+  CONFIG_USERNAME: {{ .Values.config.configUsername | quote }}
+  HIDE_JSON_CONVERT: {{ .Values.config.hideJsonConvert | quote }}
+  CLOUD_DEPLOY_FLAG: {{ .Values.config.cloudDeployFlag | quote }}
+  
+  ZOOKEEPER_HOSTNAME: "zookeeper"
+  ZOOKEEPER_PORT: "2181"
+  
+  KAFKA_HOSTNAME: "kafka"
+  KAFKA_PORT: "9092"
+  KAFKA_PORT_EXT: "9094"
+  KAFKA_HOSTNAME_EXT: {{ .Values.config.hostname | quote }}
+  
+  CONFIG_HOSTNAME: "config"
+  CONFIG_PORT: "8888"
+  
+  POSTGRES_HOSTNAME: "postgresql"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DEFAULT: "keycloak"
+  POSTGRES_USER: {{ .Values.postgresql.auth.username | quote }}
+  
+  KEYCLOAK_HOSTNAME: {{ .Values.config.hostname | quote }}
+  KEYCLOAK_USER: {{ .Values.keycloak.auth.adminUser | quote }}
+  
+  JENKINS_HOSTNAME: {{ .Values.config.hostname | quote }}
+  JENKINS_SLAVE_PORT: "50000"
+  JENKINS_USERNAME: "idpadmin"
+  
+  GRAFANA_HOSTNAME: {{ .Values.config.hostname | quote }}
+  DASHBOARD_HOSTNAME: {{ .Values.config.hostname | quote }}
+  IDPAPP_HOSTNAME: {{ .Values.config.hostname | quote }}
+  SUBSCRIPTION_HOSTNAME: {{ .Values.config.hostname | quote }}
+  SERVICES_HOSTNAME: {{ .Values.config.hostname | quote }}
+  SCHEDULER_HOSTNAME: {{ .Values.config.hostname | quote }}
+  OAUTH_HOSTNAME: {{ .Values.config.hostname | quote }}
+  EUREKA_HOSTNAME: {{ .Values.config.hostname | quote }}
+  ORCHESTRATOR_HOSTNAME: "orchestrator"
+  ORCHESTRATOR_PORT: "8281"
+  CON_JENKINS_HOSTNAME: "jenkinsconnector"
+  CON_JENKINS_PORT: "8282"
+  
+  {{- if ne .Values.config.customPort 80 }}
+  {{- if ne .Values.config.customPort 443 }}
+  GRAFANA_PORT: ":{{ .Values.config.customPort }}"
+  DASHBOARD_PORT: ":{{ .Values.config.customPort }}"
+  IDPAPP_PORT: ":{{ .Values.config.customPort }}"
+  SUBSCRIPTION_PORT: ":{{ .Values.config.customPort }}"
+  SERVICES_PORT: ":{{ .Values.config.customPort }}"
+  SCHEDULER_PORT: ":{{ .Values.config.customPort }}"
+  KEYCLOAK_PORT: ":{{ .Values.config.customPort }}"
+  JENKINS_PORT: ":{{ .Values.config.customPort }}"
+  OAUTH_PORT: ":{{ .Values.config.customPort }}"
+  EUREKA_PORT: ":{{ .Values.config.customPort }}"
+  {{- else }}
+  GRAFANA_PORT: ""
+  DASHBOARD_PORT: ""
+  IDPAPP_PORT: ""
+  SUBSCRIPTION_PORT: ""
+  SERVICES_PORT: ""
+  SCHEDULER_PORT: ""
+  KEYCLOAK_PORT: ""
+  JENKINS_PORT: ""
+  OAUTH_PORT: ""
+  EUREKA_PORT: ""
+  {{- end }}
+  {{- else }}
+  GRAFANA_PORT: ""
+  DASHBOARD_PORT: ""
+  IDPAPP_PORT: ""
+  SUBSCRIPTION_PORT: ""
+  SERVICES_PORT: ""
+  SCHEDULER_PORT: ""
+  KEYCLOAK_PORT: ""
+  JENKINS_PORT: ""
+  OAUTH_PORT: ""
+  EUREKA_PORT: ""
+  {{- end }}
+  
+  AUTH_PROVIDER: "keycloak"
+  LDAP_URL: ""
+  SMTP_DOMAIN: ""
+  TRACER_FLAG: "false"
+  JAEGER_HOSTNAME: ""

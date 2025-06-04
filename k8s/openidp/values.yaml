@@ -1,0 +1,178 @@
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: idp
+  pullPolicy: IfNotPresent
+  tag: "1.7.0-RELEASE"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: openidp.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+ssl:
+  enabled: false
+  customPort: 443
+
+config:
+  hostname: openidp.local
+  customPort: 80
+  profile: paas
+  timezone: "Asia/Kolkata"
+  adminUsername: idpadmin
+  adminPassword: idpadmin@123
+  configUsername: idpadmin
+  configPassword: idpadmin@123
+  hideJsonConvert: true
+  cloudDeployFlag: true
+  experimentalFeatures: false
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: root
+    username: postgres
+    password: root
+    database: keycloak
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+zookeeper:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 8Gi
+
+kafka:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 8Gi
+  zookeeper:
+    enabled: false
+  externalZookeeper:
+    servers: zookeeper:2181
+
+keycloak:
+  enabled: true
+  auth:
+    adminUser: admin
+    adminPassword: admin
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: postgresql
+    port: 5432
+    user: postgres
+    password: root
+    database: keycloak
+
+grafana:
+  enabled: true
+  adminPassword: idp@123
+  persistence:
+    enabled: true
+    size: 1Gi
+
+jenkins:
+  enabled: true
+  controller:
+    adminUser: idpadmin
+    adminPassword: 650f0ef465ef16b5a8e1bdcbd461973c
+    slaveListenerPort: 50000
+  persistence:
+    enabled: true
+    size: 8Gi
+
+proxy:
+  enabled: true
+  image:
+    repository: nginx
+    tag: "1.15.10"
+
+eureka:
+  enabled: true
+
+oauth:
+  enabled: true
+
+services:
+  enabled: true
+
+dashboard:
+  enabled: true
+
+ui:
+  enabled: true
+
+subscription:
+  enabled: true
+
+scheduler:
+  enabled: true
+
+jenkinsconnector:
+  enabled: true
+
+orchestrator:
+  enabled: true
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 8Gi

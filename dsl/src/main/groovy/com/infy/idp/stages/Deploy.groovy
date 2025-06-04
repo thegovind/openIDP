@@ -203,6 +203,16 @@ class Deploy {
                             }
 
                         }
+                        
+                        if (envObj.deploySteps[i].kubernetesDeployment)
+                        {
+                            def kubernetesDeploy = new KubernetesDeploy(this)
+                            if(jsonData.basicInfo.buildServerOS == Constants.WINDOWSOS) {
+                                kubernetesDeploy.addStepsKubernetesWindows(delegate, jsonData, index, i, envVar)
+                            }else{
+                                kubernetesDeploy.addStepsKubernetesLinux(delegate, jsonData, index, i, envVar)
+                            }
+                        }
                         NiaIntegStage.run(delegate, jsonData, Constants.DEPLOY);
 
                         //Optional settings of job
