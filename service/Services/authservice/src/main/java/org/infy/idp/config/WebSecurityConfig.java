@@ -17,45 +17,36 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.Customizer;
 
 /**
  * @author Infosys
 **/
 @Configuration
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableWebSecurity
+public class WebSecurityConfig {
 	@Autowired
 	private RestfulRemoteAuthenticationProvider restfulRemoteAuthenticationProvider;
 
-	/**
-	 * {@inheritDoc}
-	 */
-
-	@Override
 	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void configure(final HttpSecurity http) throws Exception {
-		// @formatter:off
-		http.authorizeRequests().antMatchers("/login").permitAll().antMatchers("/oauth/token/revokeById/**").permitAll()
-				.antMatchers("/tokens/**").permitAll().anyRequest().authenticated().and().formLogin().permitAll().and()
-				.csrf().disable();
-		// @formatter:on
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.authenticationProvider(restfulRemoteAuthenticationProvider);
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(authz -> authz
+				.requestMatchers("/login").permitAll()
+				.requestMatchers("/oauth/token/revokeById/**").permitAll()
+				.requestMatchers("/tokens/**").permitAll()
+				.anyRequest().authenticated())
+			.formLogin(form -> form.permitAll())
+			.csrf(csrf -> csrf.disable())
+			.authenticationProvider(restfulRemoteAuthenticationProvider);
+		return http.build();
 	}
 
 }

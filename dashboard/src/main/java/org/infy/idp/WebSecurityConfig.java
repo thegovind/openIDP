@@ -13,7 +13,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.Customizer;
+import org.springframework.context.annotation.Bean;
 
 /**
  * class WebSecurityConfig configures base configuration for enabling web security
@@ -21,23 +24,26 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * 
  */
 @Configuration
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableWebSecurity
+public class WebSecurityConfig {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth)
 			throws Exception {
 		auth.
 			inMemoryAuthentication()
-				.withUser("user").password("user").roles("USER").and()
-				.withUser("admin").password("admin").roles("USER","ADMIN");
+				.withUser("user").password("{noop}user").roles("USER").and()
+				.withUser("admin").password("{noop}admin").roles("USER","ADMIN");
 	}
-	@Override
-	protected void configure(final HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/foos/**").permitAll().and()
-		.authorizeRequests()
-		.antMatchers("/update/**").hasAnyRole("ADMIN","USER").and()
-        .httpBasic().and()
-		.csrf().disable();
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(authz -> authz
+				.requestMatchers("/foos/**").permitAll()
+				.requestMatchers("/update/**").hasAnyRole("ADMIN","USER")
+				.anyRequest().authenticated())
+			.httpBasic(Customizer.withDefaults())
+			.csrf(csrf -> csrf.disable());
+		return http.build();
 	}
 
 	

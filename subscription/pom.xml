@@ -15,7 +15,7 @@ https://opensource.org/licenses/MIT
 	<parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.1.RELEASE</version>
+        <version>3.2.0</version>
     </parent>
     <repositories>
 	    <repository> 
@@ -25,7 +25,7 @@ https://opensource.org/licenses/MIT
 	    </repository>
 	</repositories>
     <properties>
-     	<java.version>1.8</java.version>
+     	<java.version>17</java.version>
      	<release.version>3.0</release.version>
 		<jackson.version>2.8.7</jackson.version>
 		<org.slf4j.version>1.7.12</org.slf4j.version>
@@ -145,11 +145,11 @@ https://opensource.org/licenses/MIT
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-eureka</artifactId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-eureka-server</artifactId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -184,7 +184,7 @@ https://opensource.org/licenses/MIT
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>Camden.SR5</version>
+				<version>2023.0.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

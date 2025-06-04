@@ -1,11 +1,3 @@
-/***********************************************************************************************
-*
-* Copyright 2018 Infosys Ltd. 
-* Use of this source code is governed by MIT license that can be found in the LICENSE file or at 
-* https://opensource.org/licenses/MIT.
-*
-***********************************************************************************************/
-
 package org.infy.idp.config;
 
 import org.springframework.context.annotation.Bean;
@@ -13,12 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 
-/**
- * This class configures auth services
- * @author Infosys
- */
 @Configuration
-public class OAuth2AuthorizationServerConfig {
+public class AuthorizationServerConfig {
 
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
@@ -26,7 +14,4 @@ public class OAuth2AuthorizationServerConfig {
                 .issuer("http://localhost:8080")
                 .build();
     }
-
-
-
 }
