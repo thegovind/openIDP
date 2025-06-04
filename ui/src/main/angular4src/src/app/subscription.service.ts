@@ -6,14 +6,14 @@
 *
 **/
 import { Injectable } from "@angular/core";
-import { CookieService } from "ngx-cookie";
-import { Headers, Http, RequestOptions } from "@angular/http";
-import "rxjs/add/operator/toPromise";
+import { CookieService } from "ngx-cookie-service";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 import { IdpdataService } from "./idpdata.service";
 @Injectable()
 export class SubscriptionService {
   subscriptionUrl: String = "https://dummyuser:8090/subscription";
-  constructor(private http: Http,
+  constructor(private http: HttpClient,
     private IdpdataService: IdpdataService,
     private _cookieService: CookieService
     ) {
@@ -21,54 +21,48 @@ export class SubscriptionService {
     }
   getActiveServices(): Promise<any> {
     const url = this.IdpdataService.subscriptionServerURL + "/licenseService/license/service/active";
-    const headers = new Headers();
+    let headers = new HttpHeaders();
     let cookie;
-    headers.append("Content-type", "application/json");
+    headers = headers.set("Content-type", "application/json");
     if (this._cookieService.get("access_token")) {
         cookie = this._cookieService.get("access_token");
     }
-    headers.append("Authorization", "Bearer " + cookie);
-    const options = new RequestOptions({ headers: headers });
+    headers = headers.set("Authorization", "Bearer " + cookie);
+    const options = { headers: headers };
     const data = "";
-    return this.http
-        .post(url, data, options)
-        .toPromise()
+    return firstValueFrom(this.http.post(url, data, options))
         .then(response => {
             return response; })
         .catch(Error => console.log(Error));
   }
   getAllSubscriptions(): Promise<any> {
     const url = this.IdpdataService.subscriptionServerURL + "/licenseService/license/active";
-    const headers = new Headers();
+    let headers = new HttpHeaders();
     let cookie;
-    headers.append("Content-type", "application/json");
+    headers = headers.set("Content-type", "application/json");
     if (this._cookieService.get("access_token")) {
         cookie = this._cookieService.get("access_token");
     }
-    headers.append("Authorization", "Bearer " + cookie);
-    const options = new RequestOptions({ headers: headers });
+    headers = headers.set("Authorization", "Bearer " + cookie);
+    const options = { headers: headers };
     const data = "";
-    return this.http
-        .post(url, data, options)
-        .toPromise()
+    return firstValueFrom(this.http.post(url, data, options))
         .then(response => {
             return response; })
         .catch(Error => console.log(Error));
   }
   validateLicense(licenseKey: String): Promise<any> {
     const url = this.IdpdataService.subscriptionServerURL + "/licenseService/license/validate";
-    const headers = new Headers();
+    let headers = new HttpHeaders();
     let cookie;
-    headers.append("Content-type", "application/json");
+    headers = headers.set("Content-type", "application/json");
     if (this._cookieService.get("access_token")) {
         cookie = this._cookieService.get("access_token");
     }
-    headers.append("Authorization", "Bearer " + cookie);
-    const options = new RequestOptions({ headers: headers });
+    headers = headers.set("Authorization", "Bearer " + cookie);
+    const options = { headers: headers };
     const data = licenseKey;
-    return this.http
-        .post(url, data, options)
-        .toPromise()
+    return firstValueFrom(this.http.post(url, data, options))
         .then(response => {
             return response; })
         .catch(Error => console.log(Error));
@@ -76,18 +70,16 @@ export class SubscriptionService {
 
   addLicense(licenseKey: String): Promise<any> {
     const url = this.IdpdataService.subscriptionServerURL + "/licenseService/license/add";
-    const headers = new Headers();
+    let headers = new HttpHeaders();
     let cookie;
-    headers.append("Content-type", "application/json");
+    headers = headers.set("Content-type", "application/json");
     if (this._cookieService.get("access_token")) {
         cookie = this._cookieService.get("access_token");
     }
-    headers.append("Authorization", "Bearer " + cookie);
-    const options = new RequestOptions({ headers: headers });
+    headers = headers.set("Authorization", "Bearer " + cookie);
+    const options = { headers: headers };
     const data = licenseKey;
-    return this.http
-        .put(url, data, options)
-        .toPromise()
+    return firstValueFrom(this.http.put(url, data, options))
         .then(response => {
             return response; })
         .catch(Error => console.log(Error));

@@ -10,7 +10,7 @@ import { CommonModule } from "@angular/common";
 import { CodeInfoComponent } from "./code-info.component";
 import { codeInfoRouter } from "./code-info.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import {IdpEncryptionModule } from "../idpEncryption.module";
 
@@ -19,7 +19,7 @@ import {IdpEncryptionModule } from "../idpEncryption.module";
   imports: [
     CommonModule,
     codeInfoRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     IdpEncryptionModule,
     TranslateModule

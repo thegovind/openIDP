@@ -6,25 +6,23 @@
 *
 **/
 import { Injectable } from "@angular/core";
-import { Http, Response, RequestOptions, Headers } from "@angular/http";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/toPromise";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { map } from "rxjs/operators";
 
 @Injectable()
 export class StartupService {
     private _startupData: any;
-    constructor(private http: Http) { }
+    constructor(private http: HttpClient) { }
 
     // This is the method you want to call at bootstrap
     // Important: It should return a Promise
     load(): Promise<any> {
 
         this._startupData = null;
-        let headers = new Headers({'Authorization': 'Basic '+btoa("idpadmin:idpadmin@123")});
-        let options = new RequestOptions({ headers: headers });
+        let headers = new HttpHeaders({'Authorization': 'Basic '+btoa("idpadmin:idpadmin@123")});
         return this.http
-            .get("properties",options)
-            .map((res: Response) => res.json())
+            .get("properties", { headers: headers })
+            .pipe(map((res: any) => res))
             .toPromise()
             .then((data: any) => this._startupData = data)
             .catch((err: any) => Promise.resolve());

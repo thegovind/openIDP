@@ -12,11 +12,11 @@ import { IdpService } from "../idp-service.service";
 import { IdpdataService } from "../idpdata.service";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ReactiveFormsModule} from "@angular/forms";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule } from "@angular/forms";
-import { DateTimePickerModule } from "ng-pick-datetime";
-import { CookieService } from "ngx-cookie";
+
+import { CookieService } from "ngx-cookie-service";
 
 
 
@@ -25,10 +25,10 @@ import { CookieService } from "ngx-cookie";
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    HttpModule,
+    HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    DateTimePickerModule
+
   ]
 })
 
@@ -156,7 +156,7 @@ export class ManageEnvironmentComponent implements OnInit {
 
   }
 
-  deleteBuildInterval(i) {
+  deleteBuildInterval(i: number) {
       const x = confirm("Are you sure you want to remove these details?");
       if (x) {
       this.envData.splice(i, 1);

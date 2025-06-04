@@ -8,7 +8,7 @@
 import { Component, OnInit, HostListener } from "@angular/core";
 import { IdprestapiService } from "./idprestapi.service";
 import { IdpdataService } from "./idpdata.service";
-import { CookieService } from "ngx-cookie";
+import { CookieService } from "ngx-cookie-service";
 import {OAuthService, AuthConfig, NullValidationHandler, OAuthEvent, EventType} from 'angular-oauth2-oidc';
 import { environment } from "../../src/environments/environment";
 import {ActivationEnd, NavigationEnd, Router} from "@angular/router";
@@ -36,7 +36,7 @@ export const noDiscoveryAuthConfig: AuthConfig = {
   silentRefreshMessagePrefix: '',
   silentRefreshShowIFrame: false,
   silentRefreshTimeout: 20000,
-  dummyClientSecret: null,
+  dummyClientSecret: undefined,
   requireHttps: false,
   strictDiscoveryDocumentValidation: false,
   jwks: {
@@ -70,7 +70,7 @@ export const noDiscoveryAuthConfig: AuthConfig = {
       }
     ]
   },
-  customQueryParams: null,
+  customQueryParams: undefined,
   silentRefreshIFrameName: 'angular-oauth-oidc-silent-refresh-iframe',
   timeoutFactor: 0.75,
   sessionCheckIntervall: 3000,
@@ -100,7 +100,7 @@ export class AppComponent implements OnInit {
               private idpdataService: IdpdataService,
               private router:Router,
               private ssoService:SsoService) {
-    this.router.events.subscribe(event=>{
+    this.router.events.subscribe((event: any)=>{
       if(event instanceof NavigationEnd) {
        
       }
@@ -155,7 +155,7 @@ export class AppComponent implements OnInit {
           this.oauthService.tryLogin();
           this.oauthService.events.subscribe((event:OAuthEvent)=>{
             if(event.type === 'session_terminated'){
-              this._cookieService.removeAll();
+              this._cookieService.deleteAll();
               this.idpdataService.keycloakToken = "";
               this.oauthService.initImplicitFlow();
             }
@@ -184,7 +184,6 @@ export class AppComponent implements OnInit {
   setProfile() {
     this.profile = this.idpdataService.profile;
     if (this.profile === undefined || this.profile === "idp") {
-      require("style-loader!./../styles.css");
     }
   }
   ngOnInit() {

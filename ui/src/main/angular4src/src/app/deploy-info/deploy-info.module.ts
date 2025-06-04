@@ -10,7 +10,7 @@ import { CommonModule } from "@angular/common";
 import { DeployInfoComponent } from "./deploy-info.component";
 import { deployInfoRouter } from "./deploy-info.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
 import { DateTimePickerModule } from "ng-pick-datetime";
@@ -26,7 +26,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
     CommonModule,
     deployInfoRouter,
     NgJsonEditorModule,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     AngularMultiSelectModule,
     DateTimePickerModule,

@@ -5,7 +5,7 @@ import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 import { FormsModule } from '@angular/forms';
-import {HttpModule, Http} from '@angular/http';
+
 import {HttpClientModule} from '@angular/common/http';
 // Import routing module
 import { InsightsRouter } from './insights-info.router';
@@ -63,7 +63,7 @@ import {
     TabsModule.forRoot(),
     ChartsModule,
    FormsModule,
-   HttpModule,
+
    HttpClientModule,
     CookieModule.forRoot(),
     NgxSpinnerModule

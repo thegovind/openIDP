@@ -10,7 +10,7 @@ import {CommonModule, DatePipe} from "@angular/common";
 import { ShowConfigurationsComponent } from "./show-config.component";
 import { showConfigRouter } from "./show-config.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { Ng2TableModule } from "ng2-table/ng2-table";
 import { PaginationModule } from "ngx-bootstrap/pagination";
@@ -20,7 +20,7 @@ import { PaginationModule } from "ngx-bootstrap/pagination";
   imports: [
     CommonModule,
     showConfigRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     TranslateModule,
     Ng2TableModule,

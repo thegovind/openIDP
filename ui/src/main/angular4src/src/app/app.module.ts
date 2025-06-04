@@ -6,12 +6,9 @@
 *
 **/
 import { BrowserModule } from "@angular/platform-browser";
-import { NgModule, APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from "@angular/core";
+import { NgModule, APP_INITIALIZER } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { CookieModule, CookieService } from "ngx-cookie";
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { HttpModule, Http } from "@angular/http";
-import { DateTimePickerModule } from "ng-pick-datetime";
 import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { AppComponent } from "./app.component";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
@@ -20,7 +17,6 @@ import { SsoService } from './sso/sso.service';
 import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { FormsModule } from "@angular/forms";
-import { LoadingModule, ANIMATION_TYPES } from "ngx-loading";
 import { AppRoutingModule } from "./app-routing.module";
 import { LoginComponent } from "./login/login.component";
 import { IdpService } from "./idp-service.service";
@@ -33,24 +29,19 @@ import { IdpNavBarComponent } from "./idp-nav-bar/idp-nav-bar.component";
 import { PreviousConfigComponent } from "./previous-config/previous-config.component";
 import { KeycloakComponent } from "./keycloak/keycloak.component";
 import { AuthGuardService } from "./auth-guard.service";
-import { Ng2TableModule } from "ng2-table/ng2-table";
 import { SuccessComponent } from "./success/success.component";
 import { PaginationModule } from "ngx-bootstrap/pagination";
 import { TriggerServiceComponent } from "./trigger-service/trigger-service.component";
 import { MailSuccessComponent } from "./mail-success/mail-success.component";
 import { CommonModule } from "@angular/common";
 import { IDPEncryption } from "./idpencryption.service";
-import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
 import { ServicePortalComponent } from "./service-portal/service-portal.component";
 import { TriggerModule } from "./triggerPipeline/triggerPipeline.module";
-import { SortablejsModule } from "angular-sortablejs";
-import { AdalService, AdalGuard, AdalInterceptor } from 'adal-angular4';
 import { StartupService } from "./startup.service";
 import { ReleaseConfigsComponent } from "./release-configs/release-configs.component";
 import { LoginKcService } from "./login-kc.service";
 import { SubscriptionService } from "./subscription.service";
 import { KeycloakService } from "./keycloak/keycloak.service";
-import { RequestOptions, XHRBackend } from "@angular/http";
 import { KeycloakHttp, keycloakHttpFactory } from "./keycloak/keycloak.http";
 import { ManageEnvironmentComponent } from "./manage-environment/manage-environment.component";
 import { CreateLicenseComponent } from "./create-license/create-license.component";
@@ -67,15 +58,26 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import {NgxPaginationModule} from 'ngx-pagination';
 import { MomentModule } from 'ngx-moment';
 
 import {
-    AppAsideModule,
-    AppBreadcrumbModule,
-    AppHeaderModule,
-    AppFooterModule,
-    AppSidebarModule,
+    AvatarModule,
+    BadgeModule,
+    BreadcrumbModule,
+    ButtonGroupModule,
+    ButtonModule,
+    CardModule,
+    FooterModule,
+    GridModule,
+    HeaderModule,
+    ListGroupModule,
+    NavModule,
+    ProgressModule,
+    SharedModule,
+    SidebarModule,
+    TabsModule as CoreUITabsModule,
+    UtilitiesModule,
+    WidgetModule
 } from '@coreui/angular';
 
 export function createTranslateLoader(http: HttpClient) {
@@ -119,19 +121,26 @@ const APP_CONTAINERS = [
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        DateTimePickerModule,
-        AppAsideModule,
-        AppBreadcrumbModule.forRoot(),
-        AppFooterModule,
-        AppHeaderModule,
-        AppSidebarModule,
+        AvatarModule,
+        BadgeModule,
+        BreadcrumbModule,
+        ButtonGroupModule,
+        ButtonModule,
+        CardModule,
+        FooterModule,
+        GridModule,
+        HeaderModule,
+        ListGroupModule,
+        NavModule,
+        ProgressModule,
+        SharedModule,
+        SidebarModule,
+        CoreUITabsModule,
+        UtilitiesModule,
+        WidgetModule,
         PerfectScrollbarModule,
-        CookieModule.forRoot(),
         OAuthModule.forRoot(),
         HttpClientModule,
-        HttpModule,
-        Ng2TableModule,
-        AngularMultiSelectModule,
         FormsModule,
         CommonModule,
         MomentModule,
@@ -144,24 +153,16 @@ const APP_CONTAINERS = [
                     deps: [HttpClient]
                 }
             }),
-        FormsModule,
-        CommonModule,
-        NgxPaginationModule,
         BsDropdownModule.forRoot(),
         CollapseModule.forRoot(),
         ModalModule.forRoot(),
         TabsModule.forRoot(),
-
-        LoadingModule.forRoot({
-            animationType: ANIMATION_TYPES.rectangleBounce
-        }),
         AppRoutingModule,
         TriggerModule,
-        SortablejsModule.forRoot({ animation: 150 }),
         WidgetsModule,
         NgxSpinnerModule
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+
     providers: [IdpService, IdpSubmitService, SubscriptionService, IdprestapiService, IdpdataService,
         AuthGuardService, CookieService, IDPEncryption, AdalService,
         AdalGuard,
@@ -175,11 +176,6 @@ const APP_CONTAINERS = [
             multi: true
         },
         LoginKcService,
-        {
-            provide: KeycloakHttp,
-            useFactory: keycloakHttpFactory,
-            deps: [XHRBackend, RequestOptions, KeycloakService]
-        },
         KeycloakService,
         SsoService],
     bootstrap: [AppComponent]

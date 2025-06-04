@@ -3,7 +3,7 @@ import { PaginationInstance } from 'ngx-pagination';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DataApiService } from '../../../shared/data-api.service';
 import { RestApiService } from '../../../shared/rest-api.service';
-import { ResponseOptions } from '@angular/http/src/base_response_options';
+
 import 'chartjs-plugin-streaming';
 import { ChartsModule } from 'ng2-charts';
 import { DatePipe } from '@angular/common';

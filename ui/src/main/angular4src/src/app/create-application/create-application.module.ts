@@ -10,7 +10,7 @@ import { CommonModule } from "@angular/common";
 import { CreateApplicationComponent } from "./create-application.component";
 import { createAppRouter } from "./create-application.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 
@@ -19,7 +19,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
   imports: [
     CommonModule,
     createAppRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     TranslateModule,
     CollapseModule

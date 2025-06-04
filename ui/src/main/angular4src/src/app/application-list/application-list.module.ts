@@ -8,7 +8,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { applicationListRouter } from "./application-list.router";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import {ApplicationListComponent} from "./application-list.component";
@@ -20,7 +20,7 @@ import {AppListFilterPipe} from "./app-list-filter.pipe";
   imports: [
     CommonModule,
     applicationListRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     TranslateModule,
     NgxPaginationModule

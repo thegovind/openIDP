@@ -10,7 +10,7 @@ import { CommonModule } from "@angular/common";
 import { BuildInfoComponent } from "./build-info.component";
 import { buildInfoRouter } from "./build-info.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
 import { ParentFormConnectComponent } from "../parent-form-connect/parent-form-connect.component";
@@ -44,7 +44,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
   imports: [
     CommonModule,
     buildInfoRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     AngularMultiSelectModule,
     IdpEncryptionModule,

@@ -9,7 +9,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { AddUpdateReleaseComponent } from "./add-update-release.component";
 import { addUpdateReleaseRouter } from "./add-update-release.router";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { ActiveReleaseComponent } from "./active-release/active-release.component";
 import { AddReleaseComponent } from "./add-release/add-release.component";
@@ -23,7 +23,7 @@ import { TabsModule } from 'ngx-bootstrap';
   imports: [
     CommonModule,
     addUpdateReleaseRouter,
-    HttpModule,
+    HttpClientModule,
   FormsModule,
   TranslateModule,
     TabsModule,

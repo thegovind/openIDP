@@ -6,10 +6,10 @@
 *
 **/
 import { Injectable } from "@angular/core";
-import { Headers, Http, RequestOptions } from "@angular/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import "rxjs/add/operator/toPromise";
 import { IdpdataService } from "./idpdata.service";
-import { CookieService } from "ngx-cookie";
+import { CookieService } from "ngx-cookie-service";
 import { Router } from "@angular/router";
 import { environment } from "../environments/environment";
 import { AdalService } from "adal-angular4";
@@ -238,7 +238,7 @@ export class IdprestapiService {
   };
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private idpdataService: IdpdataService,
     private _cookieService: CookieService,
     private router: Router,

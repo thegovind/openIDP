@@ -9,7 +9,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ApproveBuildComponent } from "./approve-build.component";
 import { approvebuildRouter } from "./approve-build.router";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
 import { TranslateModule } from "@ngx-translate/core";
@@ -18,7 +18,7 @@ import { TranslateModule } from "@ngx-translate/core";
   imports: [
     CommonModule,
     approvebuildRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     AngularMultiSelectModule,
     TranslateModule

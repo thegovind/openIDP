@@ -9,7 +9,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { BasicInfoComponent } from "./basic-info.component";
 import { basicInfoRouter } from "./basic-info.router";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -18,7 +18,7 @@ import { TranslateModule } from "@ngx-translate/core";
   imports: [
     CommonModule,
     basicInfoRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     TranslateModule
   ],

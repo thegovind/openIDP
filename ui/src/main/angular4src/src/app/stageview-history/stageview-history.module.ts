@@ -10,7 +10,7 @@ import { CommonModule } from "@angular/common";
 import { StageviewHistoryComponent } from "./stageview-history.component";
 import { stageviewHistoryRouter } from "./stageview-history.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { SafePipeModule } from "../safe-pipe.module";
 
@@ -19,7 +19,7 @@ import { SafePipeModule } from "../safe-pipe.module";
   imports: [
     CommonModule,
     stageviewHistoryRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     SafePipeModule,
     TranslateModule

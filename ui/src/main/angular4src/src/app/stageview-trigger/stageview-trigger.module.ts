@@ -10,7 +10,7 @@ import { CommonModule } from "@angular/common";
 import { StageviewTriggerComponent } from "./stageview-trigger.component";
 import { stageviewTriggerRouter } from "./stageview-trigger.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { SafePipeModule } from "../safe-pipe.module";
 
@@ -19,7 +19,7 @@ import { SafePipeModule } from "../safe-pipe.module";
   imports: [
     CommonModule,
     stageviewTriggerRouter,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     SafePipeModule,
     TranslateModule

@@ -11,7 +11,7 @@ import { CommonModule } from "@angular/common";
 import { WorkflowInfoComponent } from "./workflow-info.component";
 import {WorkflowInfoRouter} from "./workflow-info.router";
 import { TranslateModule,  TranslateLoader } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule , ReactiveFormsModule} from "@angular/forms";
 import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
 import { DateTimePickerModule } from "ng-pick-datetime";
@@ -26,7 +26,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 @NgModule({
   imports: [
     CommonModule,
-    HttpModule,
+    HttpClientModule,
     FormsModule,
     CollapseModule,
     ModalModule,

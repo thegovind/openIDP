@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { ApproveReleaseComponent } from "./approve-release.component";
 import { approveReleaseRouter } from "./approve-release.router";
 import { TranslateModule } from "@ngx-translate/core";
-import { HttpModule, Http } from "@angular/http";
+import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
 
@@ -12,7 +12,7 @@ import { AngularMultiSelectModule } from "angular2-multiselect-dropdown";
     CommonModule,
 	approveReleaseRouter,
 	TranslateModule,
-	HttpModule,
+	HttpClientModule,
 	FormsModule,
 	AngularMultiSelectModule
   ],
