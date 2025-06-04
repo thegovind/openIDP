@@ -1,0 +1,18 @@
+version: "3.2"
+
+services:
+    postgres:
+        image: ${IDP_POSTGRES_IMAGE}
+        environment:
+            POSTGRES_DB: ${POSTGRES_DEFAULT}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            TZ: Asia/Kolkata          
+        volumes:
+            - ${MOUNT_DIR}/postgresdata/:/var/lib/postgresql/data/
+            - ${MOUNT_DIR}/postgresinit/:/docker-entrypoint-initdb.d/
+            - ./datafiles/postgresinit/migrations/postgresql15_optimizations.conf:/etc/postgresql/postgresql.conf
+        command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
+        deploy:
+          mode: replicated
+          replicas: 1

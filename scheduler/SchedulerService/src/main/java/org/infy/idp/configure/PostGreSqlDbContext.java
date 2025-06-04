@@ -82,6 +82,26 @@ public class PostGreSqlDbContext {
 		    connectionPool.setDriverClassName(POSTGRES_DRIVER_CLASS);
 		    connectionPool.setUrl(POSTGRES_CONN_URL);
 		    connectionPool.setInitialSize(POSTGRES_INITIAL_SIZE);
+		    
+		    connectionPool.setMaxTotal(30);
+		    connectionPool.setMaxIdle(15);
+		    connectionPool.setMinIdle(3);
+		    connectionPool.setMaxWaitMillis(30000);
+		    
+		    connectionPool.setTestOnBorrow(true);
+		    connectionPool.setTestOnReturn(false);
+		    connectionPool.setTestWhileIdle(true);
+		    connectionPool.setTimeBetweenEvictionRunsMillis(60000);
+		    connectionPool.setMinEvictableIdleTimeMillis(300000);
+		    connectionPool.setNumTestsPerEvictionRun(3);
+		    
+		    connectionPool.setValidationQuery("SELECT 1");
+		    connectionPool.setValidationQueryTimeout(3);
+		    
+		    connectionPool.setRemoveAbandonedOnBorrow(true);
+		    connectionPool.setRemoveAbandonedOnMaintenance(true);
+		    connectionPool.setRemoveAbandonedTimeout(300);
+		    connectionPool.setLogAbandoned(true);
 		
 		return connectionPool;
 

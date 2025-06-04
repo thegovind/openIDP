@@ -84,10 +84,26 @@ public class PostGreSqlDbContext {
 		tempconnectionPool.setDriverClassName(driverClass);
 		tempconnectionPool.setUrl(connectionURL);
 		tempconnectionPool.setInitialSize(initialSize);
+		
+		tempconnectionPool.setMaxTotal(50);
+		tempconnectionPool.setMaxIdle(20);
+		tempconnectionPool.setMinIdle(5);
+		tempconnectionPool.setMaxWaitMillis(30000);
+		
 		tempconnectionPool.setTestOnBorrow(true);
+		tempconnectionPool.setTestOnReturn(false);
 		tempconnectionPool.setTestWhileIdle(true);
 		tempconnectionPool.setTimeBetweenEvictionRunsMillis(60000);
-		tempconnectionPool.setValidationQuery("select 1");
+		tempconnectionPool.setMinEvictableIdleTimeMillis(300000);
+		tempconnectionPool.setNumTestsPerEvictionRun(3);
+		
+		tempconnectionPool.setValidationQuery("SELECT 1");
+		tempconnectionPool.setValidationQueryTimeout(3);
+		
+		tempconnectionPool.setRemoveAbandonedOnBorrow(true);
+		tempconnectionPool.setRemoveAbandonedOnMaintenance(true);
+		tempconnectionPool.setRemoveAbandonedTimeout(300);
+		tempconnectionPool.setLogAbandoned(true);
 
 		return tempconnectionPool;
 	}
