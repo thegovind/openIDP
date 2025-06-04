@@ -49,6 +49,10 @@ jobs:
         cd ../subscription && mvn clean compile -Dmaven.test.skip=true
         cd ../scheduler/SchedulerService && mvn clean compile -Dmaven.test.skip=true
         cd ../../connectors/jenkins && mvn clean compile -Dmaven.test.skip=true
+        cd ../../jenkins/custom_tools/DevopsJsonConv && mvn clean compile -Dmaven.test.skip=true
+        cd ../MetricsProcessor && mvn clean compile -Dmaven.test.skip=true
+        cd ../ReportFetchUtil && mvn clean compile -Dmaven.test.skip=true
+        cd ../SchedulerUtility && mvn clean compile -Dmaven.test.skip=true
     
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3

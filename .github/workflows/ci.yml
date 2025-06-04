@@ -85,11 +85,11 @@ jobs:
       with:
         node-version: '14'
         cache: 'npm'
-        cache-dependency-path: ui/package-lock.json
+        cache-dependency-path: ui/src/main/angular4src/package-lock.json
     
     - name: Build UI
       run: |
-        cd ui
+        cd ui/src/main/angular4src
         npm install
         npm run build
     

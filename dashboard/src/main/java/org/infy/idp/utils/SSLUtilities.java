@@ -22,39 +22,8 @@ public final class SSLUtilities {
 		// TODO Auto-generated constructor stub
 	}
 
-	private static com.sun.net.ssl.HostnameVerifier __hostnameVerifier;
-	private static com.sun.net.ssl.TrustManager[] __trustManagers;
 	private static HostnameVerifier _hostnameVerifier;
 	private static TrustManager[] _trustManagers;
-
-	private static void trustAllHostnamess() {
-		// Create a trust manager that does not validate certificate chains
-		if (__hostnameVerifier == null) {
-			__hostnameVerifier = new _FakeHostnameVerifier();
-		} // if
-			// Install the all-trusting host name verifier
-		com.sun.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(__hostnameVerifier);
-	} // __trustAllHttpsCertificates
-
-	private static void trustAllHttpsCertificatess() {
-		com.sun.net.ssl.SSLContext context;
-		// Create a trust manager that does not validate certificate chains
-		if (__trustManagers == null) {
-			__trustManagers = new com.sun.net.ssl.TrustManager[] { new _FakeX509TrustManager() };
-		} // if
-			// Install the all-trusting trust manager
-		try {
-			context = com.sun.net.ssl.SSLContext.getInstance("TLSv1.2");
-			context.init(null, __trustManagers, new SecureRandom());
-		} catch (GeneralSecurityException gse) {
-			throw new IllegalStateException(gse.getMessage());
-		} // catch
-		com.sun.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-	} // __trustAllHttpsCertificates
-
-	private static boolean isDeprecatedSSLProtocol() {
-		return ("com.sun.net.ssl.internal.www.protocol".equals(System.getProperty("java.protocol.handler.pkgs")));
-	} // isDeprecatedSSLProtocol
 
 	private static void trustAllHostname() {
 		// Create a trust manager that does not validate certificate chains
@@ -82,44 +51,14 @@ public final class SSLUtilities {
 	} // _trustAllHttpsCertificates
 
 	public static void trustAllHostnames() {
-		// Is the deprecated protocol setted?
-		if (isDeprecatedSSLProtocol()) {
-			trustAllHostnamess();
-		} else {
-			trustAllHostname();
-		} // else
+		trustAllHostname();
 	} // trustAllHostnames
 
 	public static void trustAllHttpsCertificates() {
-		// Is the deprecated protocol setted?
-		if (isDeprecatedSSLProtocol()) {
-			trustAllHttpsCertificatess();
-		} else {
-			trustAllHttpsCertificate();
-		} // else
+		trustAllHttpsCertificate();
 	} // trustAllHttpsCertificates
 
-	public static class _FakeHostnameVerifier implements com.sun.net.ssl.HostnameVerifier {
-		public boolean verify(String hostname, String session) {
-			return (true);
-		} // verify
-	} // _FakeHostnameVerifier
 
-	public static class _FakeX509TrustManager implements com.sun.net.ssl.X509TrustManager {
-		private static final X509Certificate[] _AcceptedIssuers = new X509Certificate[] {};
-
-		public boolean isClientTrusted(X509Certificate[] chain) {
-			return (true);
-		} // checkClientTrusted
-
-		public boolean isServerTrusted(X509Certificate[] chain) {
-			return (true);
-		} // checkServerTrusted
-
-		public X509Certificate[] getAcceptedIssuers() {
-			return (_AcceptedIssuers);
-		} // getAcceptedIssuers
-	} // _FakeX509TrustManager
 
 	@SuppressWarnings({"java:S3510"})
 	public static class FakeHostnameVerifier implements HostnameVerifier {
