@@ -39,6 +39,11 @@ jobs:
     - name: Build root pom
       run: mvn clean install -Dmaven.test.skip=true
     
+    - name: Build Services parent module (includes entities)
+      run: |
+        cd service/Services
+        mvn clean install -Dmaven.test.skip=true
+    
     - name: Build ${{ matrix.service.name }}
       run: |
         cd ${{ matrix.service.path }}
@@ -87,10 +92,14 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ui/src/main/angular4src/package-lock.json
     
+    - name: Install dependencies with legacy peer deps
+      run: |
+        cd ui/src/main/angular4src
+        npm install --legacy-peer-deps
+    
     - name: Build UI
       run: |
         cd ui/src/main/angular4src
-        npm install
         npm run build
     
     - name: Set up JDK 8 for UI packaging
@@ -158,6 +167,13 @@ jobs:
         mvn clean install -Dmaven.test.skip=true
         cd ../SchedulerUtility
         mvn clean install -Dmaven.test.skip=true
+    
+    - name: Download and prepare Jenkins dependencies
+      run: |
+        cd jenkins
+        chmod +x libs_download.sh libs_pack_move.sh
+        ./libs_download.sh
+        ./libs_pack_move.sh
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
