@@ -47,7 +47,6 @@ jobs:
 
     - name: Build all Java projects
       run: |
-        cd connectors/jenkins
         mvn clean compile -Dmaven.test.skip=true
 
     - name: Perform CodeQL Analysis

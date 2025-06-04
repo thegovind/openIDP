@@ -8,12 +8,12 @@ smart_download(){
 	else
 		echo "Downloading File at $1"
 		for i in {1..3}; do
-			if wget $WGET_PROXY --timeout=300 --tries=3 -O "$1" "$2" --no-check-certificate; then
+			if wget $WGET_PROXY --timeout=600 --tries=5 --retry-connrefused --waitretry=30 -O "$1" "$2" --no-check-certificate; then
 				echo "Download successful: $1"
 				return 0
 			fi
 			echo "Download attempt $i failed, retrying..."
-			sleep 10
+			sleep 30
 		done
 		echo "Failed to download $1 after 3 attempts"
 		return 1
